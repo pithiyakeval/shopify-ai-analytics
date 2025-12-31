@@ -1,5 +1,6 @@
 import subprocess
 import time
+import os
 
 
 class OllamaClient:
@@ -11,6 +12,7 @@ class OllamaClient:
     - Timeout protection
     - Safe UTF-8 handling (Windows compatible)
     - Graceful fallback on failure
+    - Cloud-safe mock for Render deployment
     """
 
     MODEL = "phi3"
@@ -22,10 +24,21 @@ class OllamaClient:
         """
         Send a prompt to Ollama and return raw text output.
 
-        The LLM is used only for planning (intent + parameters).
-        Execution logic is deterministic elsewhere.
+        Local dev  → Uses Ollama
+        Render     → Uses mocked deterministic response
         """
 
+        # ✅ CLOUD DEPLOYMENT (Render) — MOCK LLM
+        if os.getenv("RENDER") == "true":
+            return """
+            {
+              "intent": "sales",
+              "metric": "quantity",
+              "time_range_days": 7
+            }
+            """
+
+        # ✅ LOCAL DEVELOPMENT — REAL OLLAMA
         for attempt in range(1, OllamaClient.MAX_RETRIES + 1):
             try:
                 process = subprocess.Popen(
@@ -61,8 +74,7 @@ class OllamaClient:
                         f"[OllamaClient] Error on attempt {attempt}: {e}"
                     )
 
-            time.sleep(0.5)  # small backoff before retry
+            time.sleep(0.5)
 
         # ---- FINAL FALLBACK ----
-        # Agent will handle empty response safely
         return ""
