@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+
+# Ruby
+/vendor/bundle
+/log/*
+/tmp/*
+/storage/*
+
+# Node / Misc
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+
+# Git
+.git/
+
+# Archives
+*.zip

@@ -1,0 +1,14 @@
+
+
+services:
+  rails-api:
+    build: ../rails-api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - ai-service
+
+  ai-service:
+    build: ../ai-service
+    ports:
+      - "8000:8000"
