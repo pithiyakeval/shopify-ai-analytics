@@ -14,5 +14,6 @@ def ask_question(payload: QuestionRequest):
 def health_check():
     return{
         "status":"ok",
-        "service":"ai-service"
+        "service":"ai-service",
+        "env":"production"
     }
