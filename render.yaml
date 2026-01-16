@@ -1,12 +1,53 @@
 services:
+  # ============================
+  # AI SERVICE (FastAPI)
+  # ============================
   - type: web
     name: shopify-ai-service
     runtime: python
     plan: free
 
-    buildCommand: cd ai-service && pip install -r requirements.txt
-    startCommand: cd ai-service && uvicorn app.main:app --host 0.0.0.0 --port 10000
+    rootDir: ai-service
 
-  envVars:
-  - key: POETRY_VERSION
-    value: "disabled"
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+
+    envVars:
+      - key: ENV
+        value: production
+      - key: LOG_LEVEL
+        value: info
+      - key: POETRY_VERSION
+        value: "disabled"
+      - key: RAILS_API_BASE_URL
+        value: https://shopify-rails-api.onrender.com
+
+
+  # ============================
+  # RAILS API
+  # ============================
+  - type: web
+    name: shopify-rails-api
+    runtime: ruby
+    plan: free
+
+    rootDir: rails-api
+
+    buildCommand: |
+      bundle install
+      bundle exec rake assets:precompile
+      bundle exec rake db:migrate
+
+    startCommand: bundle exec rails server -b 0.0.0.0 -p $PORT
+
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RACK_ENV
+        value: production
+      - key: RAILS_LOG_TO_STDOUT
+        value: "true"
+      - key: RAILS_SERVE_STATIC_FILES
+        value: "true"
+      - key: AI_SERVICE_BASE_URL
+        value: https://shopify-ai-service.onrender.com
